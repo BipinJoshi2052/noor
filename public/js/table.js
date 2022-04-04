@@ -64,8 +64,8 @@ $(document).ready(function() {
             ],
         });
     }
-    $('.select2').select2({
-        dropdownParent: $('#exampleModalCenter2')
+    $('.select2').select2({ 
+        dropdownParent: $('.popup')
     });
     $('.game-btn').on('click', function(e) {
         var gameTitle = $(this).attr('data-title');
@@ -74,6 +74,7 @@ $(document).ready(function() {
     $(function() {
         $(".search-user").on("keyup", function() {
             var value = $(this).val().toLowerCase();
+            console.log(value);
             $("tbody > tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
@@ -81,8 +82,9 @@ $(document).ready(function() {
     });
 
     $('.user-history').on('click', function(e) {
-        $('#exampleModalCenter3').modal('show');
+        // $('#exampleModalCenter3').modal('show');
         var type = $(this).attr("data-type");
+        $('.load-type').text(type);
         var userId = $(this).attr("data-userId");
         var game = $(this).attr("data-game");
         $.ajaxSetup({
@@ -1557,7 +1559,7 @@ $(document).ready(function() {
                         var totalCashAppBalance = currentCashAppBlnc - amount;
 
                         $(".redeem-btn").removeClass("disabled");
-                        $(".redeem-btn").html("Redeem");
+                        $(".redeem-btn").html("Load");
 
                         useRedeemBtn.attr('data-balance', totalUserBalance);
                         useRedeemBtn.text('$ ' + totalUserBalance);
