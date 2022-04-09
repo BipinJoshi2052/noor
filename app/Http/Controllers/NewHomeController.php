@@ -320,7 +320,6 @@ class NewHomeController extends Controller
 
     public function table()
     {
-        // dd(Carbon::now());
         try {
             $forms = Form::orderBy('id', 'desc')->get()->toArray();
             //  dd($forms);
@@ -473,7 +472,16 @@ class NewHomeController extends Controller
         // Log::channel('cronLog')->info('This is testing for ItSolutionStuff.com!'
         // $accountBalance = $account->balance;
         // $userBalance = $user->balance;
-
+        if($user->balance != 1){
+            $currentMonth = date('m');
+            $data = DB::table("histories")
+                ->where('form_id',$user->id)
+                ->whereRaw('MONTH(created_at) = ?',[$currentMonth])
+                ->sum('amount_loaded');
+                if($data >= 200){
+                        $form = Form::where('id',$user->id)->update(['balance' => 1]);
+                }
+            }
         return Response::json(Account::get()->toArray());
     }
     public function referBalance(Request $request)
@@ -657,7 +665,7 @@ class NewHomeController extends Controller
         $accountBalance = $account->balance;
 
 
-        // $account = Account::where('id', $gameId)->update(['balance' => ($accountBalance + $amount)]);
+        $account = Account::where('id', $gameId)->update(['balance' => ($accountBalance + $amount)]);
         // $user = Form::where('id', $userId)->update(['balance' => ($userBalance - $amount)]);
         // $cashApp = CashApp::where('id', $cashAppId)->update(['balance' => ($cashAppBalance - $amount)]);
 
@@ -819,12 +827,12 @@ class NewHomeController extends Controller
     {
 
         $history = History::with('account')
-            ->with('form')
-            ->whereHas('form')
+            // ->with('form')
+            // ->whereHas('form')
             ->with('created_by')
             ->orderBy('id', 'desc')
-            ->get()
-            ->toArray();
+            ->count();
+            // ->toArray();
         $final = [];
         $totals = [
             'tip' => 0,
@@ -838,7 +846,14 @@ class NewHomeController extends Controller
         $data = [
             ['SN', 'Date', 'FB Name', 'Game', 'Game ID', 'Amount', 'Type', 'Creator']
         ];
-        if (!empty($history)) {
+        if (($history > 0)) {
+            $history = History::with('account')
+            ->with('form')
+            ->whereHas('form')
+            ->with('created_by')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->toArray();
             foreach ($history as $a => $b) {
                 $form_game = FormGame::where('form_id', $b['form_id'])->where('account_id', $b['account_id'])->first();
                 if (!empty($form_game)) {
@@ -904,6 +919,106 @@ class NewHomeController extends Controller
         // exit;
             $total = $totals;
         return view('newLayout.history', compact('final', 'total', 'games', 'forms'));
+    }
+    
+    public function todaysHistory(){
+
+        $history = History::with('account')
+        // ->with('form')
+        // ->whereHas('form')
+        ->with('created_by')        
+        ->whereDate('created_at', Carbon::today())
+        // ->orderBy('id', 'desc')
+        ->count();
+        // ->toArray();
+        // dd($history,Carbon::now());
+    $final = [];
+    $totals = [
+        'tip' => 0,
+        'load' => 0,
+        'redeem' => 0,
+        'refer' => 0,
+        'cashAppLoad' => 0
+    ];
+    $forms = [];
+
+    $data = [
+        ['SN', 'Date', 'FB Name', 'Game', 'Game ID', 'Amount', 'Type', 'Creator']
+    ];
+    if (($history > 0)) {
+        $history = History::with('account')
+        ->with('form')
+        ->whereHas('form')
+        ->with('created_by')        
+        ->whereDate('created_at', Carbon::today())
+        ->orderBy('id', 'desc')
+        ->get()
+        ->toArray();
+        foreach ($history as $a => $b) {
+            $form_game = FormGame::where('form_id', $b['form_id'])->where('account_id', $b['account_id'])->first();
+            if (!empty($form_game)) {
+                $form_game->toArray();
+
+                $b['form_game'] = $form_game;
+
+                ($b['type'] == 'tip') ? ($totals['tip'] = $totals['tip'] + $b['amount_loaded']) : ($totals['tip'] = $totals['tip']);
+                ($b['type'] == 'load') ? ($totals['load'] = $totals['load'] + $b['amount_loaded']) : ($totals['load'] = $totals['load']);
+                ($b['type'] == 'redeem') ? ($totals['redeem'] = $totals['redeem'] + $b['amount_loaded']) : ($totals['redeem'] = $totals['redeem']);
+                ($b['type'] == 'refer') ? ($totals['refer'] = $totals['refer'] + $b['amount_loaded']) : ($totals['refer'] = $totals['refer']);
+                ($b['type'] == 'cashAppLoad') ? ($totals['cashAppLoad'] = $totals['cashAppLoad'] + $b['amount_loaded']) : ($totals['cashAppLoad'] = $totals['cashAppLoad']);
+
+                array_push($final, $b);
+                array_push($forms, $b['form']);
+            }
+        }
+        $count = 1;
+        foreach ($final as $key => $item) {
+            $z = [
+                $count++,
+                date('d M,Y', strtotime($item['created_at'])),
+                $item['form']['facebook_name'],
+                $item['form_game']['game_id'],
+                $item['amount_loaded'],
+                $item['type'],
+                $item['created_by']['name']
+            ];
+            array_push($data, $z);
+        }
+
+        // $activeGame['form_games'] = $final;
+    }
+    $games = Account::where('status', 'active')->get()->toArray();
+    // $filename = 'file.csv';
+    // header('Content-Type: application/csv; charset=UTF-8');
+    // header('Content-Disposition: attachment;filename="'.$filename.'";');
+    // ob_clean();
+    // flush();
+    // $f = fopen('php://output', 'w');
+    // foreach ($data as $line) {
+    //     fputcsv($f, $line, ';');
+    // }
+    // $totals = [
+    //     ['Total Tip','Total Balance','Total Redeem','Total Refer','Total Amount','Total Profit'],
+    //     [$totals['tip'],$totals['load'],$totals['redeem'],$totals['refer'],$totals['cashAppLoad'],($totals['load'] - $totals['redeem'])],
+    // ];
+    $totals_2 = [
+        ['', ''],
+        ['Total Tip', $totals['tip']],
+        ['Total Balance', $totals['load']],
+        ['Total Redeem', $totals['redeem']],
+        ['Total Refer', $totals['refer']],
+        ['Total Amount', $totals['cashAppLoad']],
+        ['Total Profit', ($totals['load'] - $totals['redeem'])],
+        // 'Total Balance','Total Redeem','Total Refer','Total Amount','Total Profit'],
+        // [$totals['tip'],$totals['load'],$totals['redeem'],$totals['refer'],$totals['cashAppLoad'],($totals['load'] - $totals['redeem'])],
+    ];
+    // foreach ($totals_2 as $line) {
+    //     fputcsv($f, $line, ';');
+    // }
+    // fclose($f);
+    // exit;
+        $total = $totals;
+    return view('newLayout.history', compact('final', 'total', 'games', 'forms'));
     }
     public function allHistory()
     {
@@ -1379,7 +1494,24 @@ class NewHomeController extends Controller
         $html = view('new.gameEditModal', compact('form'))->render();
         return Response::json($html);
     }
-
+    
+    public function gamerUpdateBalance(Request $request){
+        // $request = $_POST[];
+        // return Response::json($id);
+        $id = $request->game_id;
+        try {
+            $form = Account::findOrFail($id);
+            $form->balance = isset($request['game_balance']) ? ($form->balance + $request['game_balance']) : null;
+        } catch (\Exception $e) {
+            $bug = $e->getMessage();
+            return redirect()->back()->with('error', $bug);
+        }
+        if ($form->save() == true) {
+            return redirect()->back()->with('success', 'Game Updated');
+        } else {
+            return redirect()->back()->with('error', $form);
+        }
+    }
     public function gameUpdate(Request $request, $id)
     {
         $request = $_POST['data'];

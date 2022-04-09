@@ -106,6 +106,7 @@ Route::post('/gamers/update/{id}', [App\Http\Controllers\NewHomeController::clas
 Route::get('/gamers/destroy/{id}', [App\Http\Controllers\NewHomeController::class, 'gamerDestroy'])->name('gamerDestroy');
 Route::get('/inactive-players/{id}', [App\Http\Controllers\NewHomeController::class, 'inactivePlayers'])->name('inactive-players');
 
+Route::post('/gamers/update-balance', [App\Http\Controllers\NewHomeController::class, 'gamerUpdateBalance'])->name('gamerUpdateBalance');
 
 
 
@@ -120,6 +121,7 @@ Route::post('/add-user', [App\Http\Controllers\NewHomeController::class, 'addUse
 Route::post('/user-history', [App\Http\Controllers\NewHomeController::class, 'userHistory'])->name('user-history');
 Route::get('/all-history', [App\Http\Controllers\NewHomeController::class, 'allHistory1'])->name('all-history');
 Route::get('/all-history1', [App\Http\Controllers\NewHomeController::class, 'allHistory'])->name('all-history1');
+Route::get('/todays-history', [App\Http\Controllers\NewHomeController::class, 'todaysHistory'])->name('todays-history');
 Route::post('/filter-user-history', [App\Http\Controllers\NewHomeController::class, 'filterUserHistory'])->name('filter-user-history');
 Route::post('/filter-all-history', [App\Http\Controllers\NewHomeController::class, 'filterAllHistory'])->name('filter-all-history');
 Route::get('/gamers/restore/{id}', [App\Http\Controllers\NewHomeController::class, 'gamerRestore'])->name('gamerRestore');

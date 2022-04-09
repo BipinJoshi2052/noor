@@ -24,15 +24,19 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.jqueryui.css" /> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" >
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <link href="http://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
     <style>
-       
+       .hidden{
+         display: none!important;
+       }
     </style>
  
 
     </head>
 
     <body class="g-sidenav-show   bg-gray-100">
-        <div class="min-height-300  position-absolute w-100" style="background-color:#ffb342;"></div>
+      <div class="min-height-300  position-absolute w-100 back-image-game"></div>
+        {{-- <div class="min-height-300  position-absolute w-100" style="background-color:#ffb342;"></div> --}}
         <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4 " id="sidenav-main">
           <div class="sidenav-header">
             <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
@@ -65,7 +69,15 @@
                   <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
                   </div>
-                  <span class="nav-link-text ms-1">History</span>
+                  <span class="nav-link-text ms-1">All History</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ (request()->segment(1) == 'todays-history') ? 'active' : '' }}" href="{{route('todays-history')}}">
+                  <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+                  </div>
+                  <span class="nav-link-text ms-1">Todays History</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -111,7 +123,14 @@
                 </li>
                 
               @endif
-
+              <li class="nav-item">
+                <a class="nav-link {{ (request()->segment(2) == 'spinner') ? 'active' : '' }}" href="{{route('spinner')}}">
+                  <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+                  </div>
+                  <span class="nav-link-text ms-1">Spinner</span>
+                </a>
+              </li>
               <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
               </li>
@@ -123,8 +142,41 @@
                   <span class="nav-link-text ms-1">Profile</span>
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();" >
+                  <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="fa fa-power-off text-dark text-sm opacity-10"></i>
+                  </div>
+                  <span class="nav-link-text ms-1">Logout</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                  @csrf
+              </form>
+              </li>
               
             </ul>
+          </div>
+          <style>
+            .date-countdown{
+              background: white;
+              font-family: 'Digital-7', sans-serif;
+              font-size: 30px;
+              background: black;
+              color: white;
+              border: 5px solid #ffb342;
+            }
+            .count-div{
+              background: #ffd9a2;
+            }
+            
+          </style>
+          <div class="count-div p-3 text-center">
+            <p class="date-div"></p>
+            <p class="date-countdown"></p>
+          </div>
+          
+          <div class="count-div p-3 text-center">
+            <p>Logged in Since : {{ ((session()->get('log_in_time')))?session()->get('log_in_time'):'' }}</p>
           </div>
         
         </aside>
@@ -132,13 +184,14 @@
           <!-- Navbar -->
           <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
             <div class="container-fluid py-1 px-3">
-              <nav aria-label="breadcrumb">
+              <nav aria-label="breadcrumb" class="breadcrumb-div">
                 <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
                   <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="javascript:;">Pages</a></li>
                   <li class="breadcrumb-item text-sm text-white active" aria-current="page">@yield('title')</li>
                 </ol>
                 <h6 class="font-weight-bolder text-white mb-0">@yield('title')</h6>
               </nav>
+            
            <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
                  <div class="ms-md-auto pe-md-3 d-flex align-items-center">
                   <div class="input-group">
@@ -147,7 +200,7 @@
                 </div>
                 <ul class="navbar-nav  justify-content-end">
                   
-                  <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+                  <li class="nav-item {{(request()->segment(1) == 'table')?'':'d-xl-none'}} ps-3 d-flex align-items-center">
                     <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
                       <div class="sidenav-toggler-inner">
                         <i class="sidenav-toggler-line bg-white"></i>
@@ -175,9 +228,9 @@
                     <div class="copyright text-center text-sm text-muted text-lg-start">
                       © Noor Games <script>
                         document.write(new Date().getFullYear())
-                      </script>,
-                      made with  by
-                      <a class="font-weight-bold" >Abdullah Tahir</a>
+                      </script>
+                      {{-- made with  by
+                      <a class="font-weight-bold" >Abdullah Tahir</a> --}}
                     </div>
                   </div>
                   </div>
@@ -219,9 +272,11 @@
 
 <script src="{{asset('js/core/popper.min.js')}}"></script>
 <script src="{{asset('js/core/bootstrap.min.js')}}"></script>
-<script src="{{asset('js/plugins/perfect-scrollbar.min.js')}}"></script>
-<script src="{{asset('js/plugins/smooth-scrollbar.min.js')}}"></script>
-<script src="{{asset('js/plugins/chartjs.min.js')}}"></script>
+<script src="{{asset('newAdmin/js/plugins/perfect-scrollbar.min.js')}}"></script>
+<script src="{{asset('newAdmin/js/plugins/plugins/smooth-scrollbar.min.js')}}"></script>
+<script src="{{asset('newAdmin/js/plugins/plugins/chartjs.min.js')}}"></script>
+<script src="{{asset('js/core/bootstrap.min.js')}}"></script>
+<script src="{{asset('newAdmin/js/argon-dashboard.min.js')}}"></script>
 
 <script src="{{asset('js/editable.js')}}"></script>
 
@@ -235,6 +290,16 @@
 <script src="{{asset('js/demo.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="{{asset('js/table.js')}}"></script>
+
+@if (isset($activeGame) && ($activeGame['image'] != ''))
+  <script>
+    $('.back-image-game').css('background-image',"url('uploads/{{$activeGame['image']}}')");
+  </script>
+@else
+  <script>
+    $('.back-image-game').css('background-color','#ffb342');
+  </script>
+@endif
 <script>
     $(function(){
         $('#phone-number').usPhoneFormat({
@@ -411,6 +476,77 @@
    
    
    });
+</script>
+<script>
+  x = '<?php echo Carbon\Carbon::now().'   ('.config('app.timezone').')' ?>';
+  console.log(x);
+//   var dateTime = new Date();
+var weekday=new Array(7);
+weekday[0]="Sunday";
+weekday[1]="Monday";
+weekday[2]="Tuesday";
+weekday[3]="Wednesday";
+weekday[4]="Thursday";
+weekday[5]="Friday";
+weekday[6]="Saturday";
+
+
+var monthNames=new Array(7);
+monthNames[0]="January";
+monthNames[1]="February";
+monthNames[2]="March";
+monthNames[3]="April";
+monthNames[4]="May";
+monthNames[5]="June";
+monthNames[6]="July";
+monthNames[7]="August";
+monthNames[8]="September";
+monthNames[9]="October";
+monthNames[10]="November";
+monthNames[11]="December";
+
+  var  dateTime = new Date(x);
+  var dayName = weekday[dateTime.getDay()];
+  var monthName2 = monthNames[dateTime.getMonth()];
+//   console.log(dateTime.getFullYear());
+//   console.log(monthNames[dateTime.getMonth()]);
+     var hour, hourTemp, minute, minuteTemp, second, secondTemp, monthnumber, monthnumberTemp, monthday, monthdayTemp, year, ap;
+     function timefunction() {
+         dateTime.setSeconds(dateTime.getSeconds() + 1, 0);
+         hourTemp = hour = dateTime.getHours();
+
+         minuteTemp = minute = dateTime.getMinutes();
+         if (minute.toString().length == 1)
+             minuteTemp = "0" + minute.toString();
+
+         secondTemp = second = dateTime.getSeconds();
+         if (second.toString().length == 1)
+             secondTemp = "0" + second.toString();
+
+         monthnumberTemp = monthnumber = dateTime.getMonth();
+         if ((monthnumber + 1).toString().length == 1)
+             monthnumberTemp = "0" + (monthnumber + 1).toString();
+
+         monthdayTemp = monthday = dateTime.getDate();
+         if (monthday.toString().length == 1)
+             monthdayTemp = "0" + monthday.toString();
+         year = dateTime.getFullYear();
+         // console.log(dateTime.getYear());
+         ap = "AM";
+         if (hour > 11) { ap = "PM"; }
+         if (hour > 12) { hour = hour - 12; }
+         if (hour == 0) { hour = 12; }
+         if (hour.toString().length == 1)
+             hourTemp = "0" + hour.toString();
+             $('.date-div').text(dayName + ", "+monthdayTemp+" " + monthName2 + "," + year );
+
+             
+             $('.date-countdown').text(hourTemp + " : " + minuteTemp + " : " + secondTemp + " " + ap);
+         // document.getElementById('time').innerHTML = monthnumberTemp + "/" + monthdayTemp + "/" + year + " " + hourTemp + ":" + minuteTemp + ":" + secondTemp + " " + ap;
+     }
+     timefunction();
+     setInterval("timefunction()", 1000);
+
 </script>
 @yield('script');
 </html>

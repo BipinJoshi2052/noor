@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="../../public/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}" />
     <title>Lucky Spin App Example</title>
-    <link href="../../public/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+    <link href="{{asset('css/jquerysctipttop.css')}}" rel="stylesheet" type="text/css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-<link href="../../public/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="../../public/css/spinner.css" rel="stylesheet" />
+<link href="{{asset('css/bootstrap.min.css')}}" rel="stylesheet" />
+    <link href="{{asset('css/spinner.css')}}" rel="stylesheet" />
 
   </head>
   <body>
@@ -122,13 +122,13 @@
     <audio
       controls="controls"
       id="applause"
-      src="../../public/img/applause.mp3"
+      src="{{asset('img/applause.mp3')}}"
       type="audio/mp3"
     ></audio>
     <audio
       controls="controls"
       id="wheel"
-      src="../../public/img/wheel.mp3"
+      src="{{asset('img/wheel.mp3')}}"
       type="audio/mp3"
     ></audio>
     
@@ -233,7 +233,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="../../public/js/script.js"></script>
+    <script src="{{asset('js/script.js')}}"></script>
     <script type="text/javascript">
 
 

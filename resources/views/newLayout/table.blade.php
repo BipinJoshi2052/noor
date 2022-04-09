@@ -59,6 +59,7 @@ tr:nth-child(odd) {
   transition: opacity 500ms;
   visibility: hidden;
   opacity: 0;
+  z-index: 9999;
 }
 .overlay:target {
   visibility: visible;
@@ -164,7 +165,7 @@ tr:nth-child(odd) {
    .hidden{
    display: none;
    }
-   .game-btn .card:hover{
+   .game-btn-card:hover{
        background: #fdb244;
    }
    .active-game-btn .card{
@@ -174,57 +175,12 @@ tr:nth-child(odd) {
       background-image: url('{{asset('uploads/'.$activeGame['image'])}}');
       background-size: cover;
    } */
+
+   .breadcrumb-div{
+      background: #5e5050cc;
+    padding: 5px;
+   }
 </style>
-<div class="row">
-    <div class="col-lg-12" style="padding-bottom:20px;">
-       <div class="card">
-          <div class="card-header pb-0 p-3">
-             <h6 class="mb-0">Categories</h6>
-          </div>
-          <div class="row">
-                @if (isset($games) && !empty($games))
-                    @foreach($games as $game)    
-                        @php
-                            $query = $_GET;
-                            $query['game'] = $game['title'];
-                            $query_result = http_build_query($query);
-                        @endphp  
-                        
-                          
-                     
-                            <div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">   
-                                <a class="mb-1 game-btn {{(str_replace(' ','-',$game['title']))}}-{{($game['id'])}} {{(isset($activeGame) && $activeGame['id'] == $game['id'])?'active-game-btn':''}}" 
-                            href="{{url('/table?').$query_result}}"
-                            data-title="{{($game['title'])}}" 
-                            data-balance="{{($game['balance'])}}"
-                            >
-                                <div class="card">
-                                <div class="card-body p-3">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="d-flex align-items-center">
-                                            <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                                <i class="ni ni-mobile-button text-white opacity-10"></i>
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <h6 class="mb-1 text-dark text-sm">{{$game['title']}}</h6>
-                                                <span class="text-xs">$ {{($game['balance'])}}</span>
-                                            </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                </div>
-                        </a>
-                            </div>
-                    @endforeach                                
-                @else
-                    No games available
-                @endif
-          </div>
-       </div>
-    </div>
- </div>
  <div class="row" style="padding-bottom:40px;">
     <div class="col-xl-12 col-sm-12 mb-xl-0 mb-4">
        <div class="card">
@@ -248,20 +204,151 @@ tr:nth-child(odd) {
        </div>
     </div>
  </div>
+<div class="row">
+    <div class="col-lg-12" style="padding-bottom:20px;">
+       <div class="card">
+          <div class="card-header pb-0 p-3">
+             <h6 class="mb-0">Games</h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="row">
+                  @if (isset($games) && !empty($games))
+                     @foreach($games as $game)    
+                           @php
+                              $query = $_GET;
+                              $query['game'] = $game['title'];
+                              $query_result = http_build_query($query);
+                           @endphp  
+                           
+                           
+                        
+                              <div class="col-xl-3 col-sm-3 mb-3 {{(isset($activeGame) && $activeGame['id'] == $game['id'])?'active-game-btn':''}}">   
+                               
+                                 <div class="card game-btn-card">
+                                 <div class="card-body p-3">
+                                       <div class="row">
+                                          <div class="col-12">
+                                             <div class="d-flex align-items-center" style="justify-content: space-between;">
+                                                <a class="mb-1 game-btn {{(str_replace(' ','-',$game['title']))}}-{{($game['id'])}}" 
+                                                href="{{url('/table?').$query_result}}"
+                                                data-title="{{($game['title'])}}" 
+                                                data-balance="{{($game['balance'])}}"
+                                                >
+                                                   <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                                                         {{-- <i class="ni ni-mobile-button text-white opacity-10"></i> --}}
+                                                         @if($game['image'] == '')
+                                                            <i class="ni ni-mobile-button text-white opacity-10"></i>
+                                                         @else
+                                                            <img style="max-width: 100%" src="{{asset('uploads/'.$game['image'])}}">
+                                                         @endif
+
+                                                         {{-- <img src="" alt=""> --}}
+                                                   </div>
+                                                </a>
+                                                <div class="d-flex flex-column">
+                                                      <h6 class="mb-1 text-dark text-sm">{{$game['title']}}</h6>
+                                                      <span class="text-xs span-{{(str_replace(' ','-',$game['title']))}}-{{($game['id'])}} {{(isset($activeGame) && $activeGame['id'] == $game['id'])?'active-game-btn':''}}">$ {{($game['balance'])}}</span>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                   <a href="#popup8" class="edit-game-table" data-id="{{$game['id']}}"><i class="fa fa-pencil"></i> </a>
+                                                   {{-- <button  class="btn  btn-primary mb-0 undo-transaction" style="background-color:#1100ff;"  > <a href="#popup8" style="color:white;">Undo</a></button> --}}
+
+                                                   
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                 </div>
+                                 </div>
+                          
+                              </div>
+                     @endforeach       
+                     <div id="popup8" class="overlay">
+                        <div class="popup">
+                           <h2>Edit Balance</h2>
+                           <a class="close" href="#">&times;</a>
+                           <div class="content ">
+                              <div class="row" style="padding-top:20px;">
+                                 <div class="col-12">
+                                    <div class="card mb-4">
+                                       <div class="card-body px-0 pt-0 pb-2">
+                                          <form action="{{route('gamerUpdateBalance')}}" method="post">
+                                             @csrf
+                                             <input type="hidden" name="game_id" class="game_id" value="">
+                                          <div class="form-group">
+                                             <input type="text" class="form-control" name="game_balance" placeholder="Enter Amount">
+                                          </div>
+                                          <div class="form-group">
+                                             <button class="btn btn-success" type="submit">Load</button>
+                                          </div>
+
+                                          </form>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div >
+                        </div >
+                     </div >                         
+                  @else
+                     No games available
+                  @endif
+            </div>
+          </div>
+       </div>
+    </div>
+ </div>
  <div class="row">
     <div class="col-12">
        <div class="card mb-4">
           <div class="card-header pb-0">
              <h6>Authors table</h6>
-             <div class="row">
-                <div class="col-10">
+             <div class="row pb-3">
+                <div class="col-9">
                    <div class="input-group">
                       <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
                       <input type="text" class="form-control search-user" id="search-user" placeholder="Search User">
                    </div>
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                    <button  class="btn  btn-primary mb-0" style="background-color:#FF9800;"  > <a href="#popup3" style="color:white;">ADD USER</a></button>
+                   <button  class="btn  btn-primary mb-0 undo-transaction" style="background-color:#1100ff;"  > <a href="#popup7" style="color:white;">Undo</a></button>
+
+                   <div id="popup7" class="overlay">
+                     <div class="popup">
+                        <h2>Undo Transaction</h2>
+                        <a class="close" href="#">&times;</a>
+                        <div class="content ">
+                           <div class="row" style="padding-top:20px;">
+                              <div class="col-12">
+                                 <div class="card mb-4">
+                                    <div class="card-body px-0 pt-0 pb-2">
+                                       <div class="table-responsive p-0">
+                                          <table class="table align-items-center mb-0">
+                                             <thead class="sticky" >
+                                                <tr  >
+                                                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                                                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">FB Name</th>
+                                                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Game</th>
+                                                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Game Id</th>
+                                                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Amoount</th>
+                                                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
+                                                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action by</th>
+                                                </tr>
+                                             </thead>
+                                             <tbody  style="text-align: center!important;" class="undo-history-body">
+                                              
+                                             </tbody>
+                                          </table>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div >
+                     </div >
+                  </div >
+               </div>
                 </div>
                 <div id="popup3" class="overlay" style="z-index: 9;">
                    <div class="popup">
@@ -351,20 +438,38 @@ tr:nth-child(odd) {
                                                   <div class="col-12">
                                                      <div class="card mb-4">
                                                         <div class="card-header pb-0">
-                                                           <h6>Authors table</h6>
-                                                        </div>
-                                                        <div class="card-body px-0 pt-0 pb-2">
-                                                         <div class="row display-inline-flex">
-                                                            <div class="col-4">
+                                                           {{-- <h6>Authors table</h6> --}}
+                                                           <div class="row w-100" style="justify-content: space-around;">
+                                                              <div class="col-2">
+                                                                 <button class="btn btn-success history-type-change-btn" data-userId="" data-game="" data-type="all">All</button>
+                                                              </div>
+                                                              <div class="col-2">
+                                                                 <button class="btn btn-success history-type-change-btn" data-userId="" data-game="" data-type="load">Load</button>
+                                                              </div>
+                                                              <div class="col-2">
+                                                                 <button class="btn btn-success history-type-change-btn" data-userId="" data-game="" data-type="redeem">Redeem</button>
+                                                              </div>
+                                                              <div class="col-2">
+                                                                 <button class="btn btn-success history-type-change-btn" data-userId="" data-game="" data-type="refer">Bonus</button>
+                                                              </div>
+                                                              <div class="col-2">
+                                                                 <button class="btn btn-success history-type-change-btn" data-userId="" data-game="" data-type="tip">Tip</button>
+                                                              </div>
+                                                           </div>
+                                                           <input type="hidden" name="type" class="user-current-game-history-input">
+                                                            {{-- <div class="col-4">
                                                                <select name="type" id="" class="filter-type">
                                                                   <option value="all">All</option>
                                                                   <option value="load">Load</option>
                                                                   <option value="redeem">Redeem</option>
                                                                   <option value="refer">Bonus</option>
                                                                   <option value="tip">Tip</option>
-                                                                  {{-- <option value="cashAppLoad">Cash App</option> --}}
                                                                </select>
-                                                            </div>
+                                                            </div> --}}
+
+                                                        </div>
+                                                        <div class="card-body px-0 pt-0 pb-2">
+                                                         <div class="row display-inline-flex">
                                                             <div class="col-4">   
                                                                <input type="date" name="start" class="filter-start">
                                                             </div>
@@ -447,9 +552,9 @@ tr:nth-child(odd) {
                                                <div class="row" style="padding-top:20px;">
                                                   <div class="col-12">
                                                      <div class="card mb-4">
-                                                        <div class="card-header pb-0">
+                                                        {{-- <div class="card-header pb-0">
                                                            <h6>Authors table</h6>
-                                                        </div>
+                                                        </div> --}}
                                                         <div class="card-body px-0 pt-0 pb-2">
                                                             <div class="row">
                                                                 <div class="col-xl-4 col-sm-12 mb-xl-0 mb-4">   
@@ -544,17 +649,36 @@ tr:nth-child(odd) {
                                                                 </div>
 
                                                             </div>
+                                                            <div class="row w-100" style="justify-content: space-around;">
+                                                               <div class="col-2">
+                                                                  <button class="btn btn-success history-type-change-btn form-all" data-userId="" data-game="" data-type="all">All</button>
+                                                               </div>
+                                                               <div class="col-2">
+                                                                  <button class="btn btn-success history-type-change-btn form-all" data-userId="" data-game="" data-type="load">Load</button>
+                                                               </div>
+                                                               <div class="col-2">
+                                                                  <button class="btn btn-success history-type-change-btn form-all" data-userId="" data-game="" data-type="redeem">Redeem</button>
+                                                               </div>
+                                                               <div class="col-2">
+                                                                  <button class="btn btn-success history-type-change-btn form-all" data-userId="" data-game="" data-type="refer">Bonus</button>
+                                                               </div>
+                                                               <div class="col-2">
+                                                                  <button class="btn btn-success history-type-change-btn form-all" data-userId="" data-game="" data-type="tip">Tip</button>
+                                                               </div>
+                                                            </div>
                                                             <div class="row">
-                                                               <div class="col-4">
-                                                                  <select name="type" id="" class="filter-type1">
+                                                               <input type="hidden" name="type" class="user-current-game-history-input">
+
+
+                                                               {{-- <div class="col-4"> --}}
+                                                                  {{-- <select name="type" id="" class="filter-type1">
                                                                      <option value="all">All</option>
                                                                      <option value="load">Load</option>
                                                                      <option value="redeem">Redeem</option>
                                                                      <option value="refer">Bonus</option>
                                                                      <option value="tip">Tip</option>
-                                                                     {{-- <option value="cashAppLoad">Cash App</option> --}}
-                                                                  </select>
-                                                               </div>
+                                                                  </select> --}}
+                                                               {{-- </div> --}}
                                                                <div class="col-4">   
                                                                   <input type="date" name="start" class="filter-start1">
                                                                </div>
@@ -1319,6 +1443,7 @@ tr:nth-child(odd) {
    if($setting != ""){
       $time = $setting->value;
    }
+   
 @endphp
 <script>
    var time = '{{$time}}';
@@ -1331,6 +1456,34 @@ tr:nth-child(odd) {
       //  console.log('asdfasdf');
    }
    // resetData();
-   setInterval(resetData, 1000*time);
+   // setInterval(resetData, 1000*time);
+//    var d = new Date();
+// var n = d.getTimezoneOffset();
+// var ans = new Date(d.getTime() + n * 60 * 1000);
+//    var d = new Date();
+//     var t = d.toLocaleTimeString();
+// console.log(t);
+   // <script>
+      // var x = '';
+// var x = new Date();
+//         $('.date-countdown').text(x);
+   //  function display_c(){
+      //   var refresh=1000; // Refresh rate in milli seconds
+      //   mytime=setTimeout('display_ct()',refresh);
+      //   var d = new Date('<?php echo Carbon\Carbon::now().'   ('.config('app.timezone').')' ?>');
+      //   console.log(d);
+         // console.log(x);
+   //  }
+   //  function display_ct() {
+         // x = '<?php echo Carbon\Carbon::now().'   ('.config('app.timezone').')' ?>';
+      //   $('.date-countdown').text(x);
+      //   x = '';
+      //   display_c();
+   //  }
+   //  display_ct();
 </script>
+
+
+
+{{-- {{dd(Carbon\Carbon::now())}} --}}
 @endsection

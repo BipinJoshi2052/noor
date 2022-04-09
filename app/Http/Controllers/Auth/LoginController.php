@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
+use Illuminate\Support\Carbon;
 
 class LoginController extends Controller
 {
@@ -33,6 +34,7 @@ class LoginController extends Controller
     {
         switch (Auth::user()->role) {
             case 'admin':
+                session()->put('log_in_time', Carbon::now()->format('g:i A'));
                 $this->redirectTo = '/admin/dashboard';
                 return $this->redirectTo;
                 break;

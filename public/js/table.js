@@ -137,6 +137,8 @@ $(document).ready(function() {
         $('#exampleModalCenter').modal('show');
     });
     $('.filter-history').on('click', function(e) {
+        e.stopImmediatePropagation();
+        console.log('a');
         var historyType = '';
         if ($(this).hasClass('form-all')) {
             historyType = 1;
@@ -151,6 +153,7 @@ $(document).ready(function() {
 
         var userId = $(this).attr("data-userId");
         var game = $(this).attr("data-game");
+        // console.log(userId,game)
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -172,7 +175,7 @@ $(document).ready(function() {
             dataType: 'json',
             beforeSend: function() {},
             success: function(data) {
-                console.log(data);
+                // console.log(data);
 
                 $('.total-tip').text(0);
                 $('.total-balance').text(0);
@@ -189,11 +192,11 @@ $(document).ready(function() {
                             var date_format = new Date(index.created_at);
                             var a = date_format.getDate() + ' ' + monthShortNames[date_format.getMonth()] + ', ' + date_format.getFullYear()+' '+date_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
                             optionLoop +=
-                                '<tr><td class="text-center">' + a + '</td><td class="text-center">$ ' + index.amount_loaded + '</td><td class="text-center">' 
+                                '<tr><td class="text-center">' + a + '</td><td class="text-center"><span class="badge  bg-gradient-success"> ' + index.amount_loaded + '$</span></td><td class="text-center">' 
                                 + ((index.type == 'refer')?'bonus':index.type)  + '</td><td class="text-center">' + index.created_by.name + '</td></tr>';
                         });
                         `    `
-                        console.log('yhere');
+                        // console.log('yhere');
                     } else {
                         console.log(data[1].tip);
                         $('.total-tip').text(data[1].tip);
@@ -206,7 +209,7 @@ $(document).ready(function() {
                             var date_format = new Date(index.created_at);
                             var a = date_format.getDate() + ' ' + monthShortNames[date_format.getMonth()] + ', ' + date_format.getFullYear()+' '+date_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
                             optionLoop +=
-                                '<tr><td class="text-center">' + a + '</td><td class="text-center">' + index.account.name + '</td><td class="text-center">$ ' + index.amount_loaded + '</td><td class="text-center">' 
+                                '<tr><td class="text-center">' + a + '</td><td class="text-center">' + index.account.name + '</td><td class="text-center"><span class="badge  bg-gradient-success"> ' + index.amount_loaded + '$</span></td><td class="text-center">' 
                                 + ((index.type == 'refer')?'bonus':index.type)  + '</td><td class="text-center">' + index.created_by.name + '</td></tr>';
                         });
                     }
@@ -481,6 +484,8 @@ $(document).ready(function() {
         $('.user-name').text(gameId);
         $('.filter-history').attr("data-userId", userId);
         $('.filter-history').attr("data-game", game);
+        $('.history-type-change-btn').attr("data-userId", userId);
+        $('.history-type-change-btn').attr("data-game", game);
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -537,6 +542,8 @@ $(document).ready(function() {
         
         $('.filter-history').attr("data-userId", userId);
         $('.filter-history').attr("data-game", game);
+        $('.history-type-change-btn').attr("data-userId", userId);
+        $('.history-type-change-btn').attr("data-game", game);
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -653,7 +660,7 @@ $(document).ready(function() {
         });
     });
     $('.undo-transaction').on('click', function(e) {
-        $('#exampleModalCenter8').modal('show');
+        // $('#exampleModalCenter8').modal('show');
 
         $.ajaxSetup({
             headers: {
@@ -697,6 +704,12 @@ $(document).ready(function() {
             }
         });
     });
+    function clearBtns(){        
+        $('.thisBtn').each(function( index ){
+            $(this).removeClass();
+            $(this).addClass('btn btn-success thisBtn text-center');
+        });
+    }
     $(function() {
         $('.referInput').on('keydown', function(e) {
             var userCashAppBtn = $(".user-refer-" + $(this).attr('data-user'));
@@ -785,7 +798,9 @@ $(document).ready(function() {
                             useReferBtn.text('$ ' + totalUserBalance);
 
                             gameBtn.attr('data-balance', totalGameBalance);
-                            gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
+                            
+                            $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
+                            // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                             amount = 0;
                             currentGameBalance = 0;
@@ -816,12 +831,6 @@ $(document).ready(function() {
             }
         });
     });
-    function clearBtns(){        
-        $('.thisBtn').each(function( index ){
-            $(this).removeClass();
-            $(this).addClass('btn btn-success thisBtn text-center');
-        });
-    }
     function referBtnClickEvent(){
         $(function() {
             $('body').on('click', ".refer-btn", function(e) {
@@ -896,7 +905,8 @@ $(document).ready(function() {
                             useReferBtn.text('$ ' + totalUserBalance);
 
                             gameBtn.attr('data-balance', totalGameBalance);
-                            gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
+                            $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
+                            // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                             amount = 0;
                             currentGameBalance = 0;
@@ -1326,8 +1336,9 @@ $(document).ready(function() {
                             // useRedeemBtn.attr('data-balance', totalUserBalance);
                             // useRedeemBtn.text('$ ' + totalUserBalance);
 
+                            $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
                             gameBtn.attr('data-balance', totalGameBalance);
-                            gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
+                            // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                             amount = 0;
                             currentGameBalance = 0;
@@ -1447,11 +1458,13 @@ $(document).ready(function() {
                             userCashAppBtn.attr('data-balance', totalUserBalance);
                             userCashAppBtn.text('$ ' + totalUserBalance);
 
+                            $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
+
                             // useRedeemBtn.attr('data-balance', totalUserBalance);
                             // useRedeemBtn.text('$ ' + totalUserBalance);
 
                             gameBtn.attr('data-balance', totalGameBalance);
-                            gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
+                            // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                             amount = 0;
                             currentGameBalance = 0;
@@ -1773,7 +1786,7 @@ $(document).ready(function() {
                         $(".tip-btn").addClass("disabled");
                         interval = setInterval(function() {
                             i = ++i % 4;
-                            $(".tip-btn").html("Tip" + Array(i + 1).join("."));
+                            $(".tip-btn").html("Load" + Array(i + 1).join("."));
                         }, 300);
                     },
                     success: function(data) {
@@ -1781,12 +1794,12 @@ $(document).ready(function() {
 
                         $(userTipCollapse).collapse('hide');
 
-                        // var totalGameBalance = currentGameBalance + amount;
+                        var totalGameBalance = currentGameBalance + amount;
                         var totalUserBalance = currentUserBalance + amount;
                         // var totalCashAppBalance = currentCashAppBlnc - amount;
 
                         $(".tip-btn").removeClass("disabled");
-                        $(".tip-btn").html("Tip");
+                        $(".tip-btn").html("Load");
 
                         // useRedeemBtn.attr('data-balance', totalUserBalance);
                         // useRedeemBtn.text('$ ' + totalUserBalance);
@@ -1794,7 +1807,8 @@ $(document).ready(function() {
                         userBalanceBtn.attr('data-balance', totalUserBalance);
                         userBalanceBtn.text('$ ' + totalUserBalance);
 
-                        // gameBtn.attr('data-balance', totalGameBalance);
+                        gameBtn.attr('data-balance', totalGameBalance);
+                        $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
                         // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                         // cashAppBtn.attr('data-balance', totalCashAppBalance);
@@ -1894,7 +1908,8 @@ $(document).ready(function() {
 
                         $(userTipCollapse).collapse('hide');
 
-                        // var totalGameBalance = currentGameBalance + amount;
+                        var totalGameBalance = currentGameBalance + amount;
+                        console.log(totalGameBalance);
                         var totalUserBalance = currentUserBalance + amount;
                         // var totalCashAppBalance = currentCashAppBlnc - amount;
 
@@ -1906,8 +1921,10 @@ $(document).ready(function() {
 
                         userBalanceBtn.attr('data-balance', totalUserBalance);
                         userBalanceBtn.text('$ ' + totalUserBalance);
+                        
+                        $(".span-" + gameTitle + '-' + gameId + "").text('$ ' + totalGameBalance);
 
-                        // gameBtn.attr('data-balance', totalGameBalance);
+                        gameBtn.attr('data-balance', totalGameBalance);
                         // gameBtn.text(gameTitle.replace("-", " ") + ' : ' + totalGameBalance);
 
                         // cashAppBtn.attr('data-balance', totalCashAppBalance);
@@ -2013,6 +2030,105 @@ $(document).ready(function() {
                     }
                 });
             });
+        });  
+        $(function() {
+            $('.edit-game-table').on('click', function(e) {
+                $('.game_id').val($(this).data('id'));
+            });
         });    
-    
+        $(function() {
+            $('.history-type-change-btn').on('click', function(e) {
+                $('.user-current-game-history-input').val($(this).data('type'));
+                // $('.filter-history').trigger('click');
+                e.stopImmediatePropagation();
+                // console.log('a');
+                var historyType = '';
+                if ($(this).hasClass('form-all')) {
+                    historyType = 1;
+                    var filter_type = $(this).data('type');
+                    var filter_start = $('.filter-start1').val();
+                    var filter_end = $('.filter-end1').val();
+                } else {
+                    var filter_type = $(this).data('type');
+                    var filter_start = $('.filter-start').val();
+                    var filter_end = $('.filter-end').val();
+                }
+        
+                var userId = $(this).attr("data-userId");
+                var game = $(this).attr("data-game");
+                var game = $(this).attr("data-game");
+                // console.log(userId,game)
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                var actionType = "POST";
+                var ajaxurl = '/filter-user-history';
+                $.ajax({
+                    type: actionType,
+                    url: ajaxurl,
+                    data: {
+                        "filter_type": filter_type,
+                        "userId": userId,
+                        "game": game,
+                        "filter_start": filter_start,
+                        "filter_end": filter_end,
+                        "historyType": historyType,
+                    },
+                    dataType: 'json',
+                    beforeSend: function() {},
+                    success: function(data) {
+                        // console.log(data);
+        
+                        $('.total-tip').text(0);
+                        $('.total-balance').text(0);
+                        $('.total-redeem').text(0);
+                        $('.total-refer').text(0);
+                        $('.total-amount').text(0);
+                        $('.total-profit').text(0);
+                        if (data[0] != '') {
+                            optionLoop = '';
+                            options = data[0];
+                            var monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                            if (historyType == '') {
+                                options.forEach(function(index) {
+                                    var date_format = new Date(index.created_at);
+                                    var a = date_format.getDate() + ' ' + monthShortNames[date_format.getMonth()] + ', ' + date_format.getFullYear()+' '+date_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+                                    optionLoop +=
+                                        '<tr><td class="text-center">' + a + '</td><td class="text-center"><span class="badge  bg-gradient-success"> ' + index.amount_loaded + '$</span></td><td class="text-center">' 
+                                        + ((index.type == 'refer')?'bonus':index.type)  + '</td><td class="text-center">' + index.created_by.name + '</td></tr>';
+                                });
+                                `    `
+                                // console.log('yhere');
+                            } else {
+                                console.log(data[1].tip);
+                                $('.total-tip').text(data[1].tip);
+                                $('.total-balance').text(data[1].load);
+                                $('.total-redeem').text(data[1].redeem);
+                                $('.total-refer').text(data[1].refer);
+                                $('.total-amount').text(data[1].cashAppLoad);
+                                $('.total-profit').text(data[1].profit);
+                                options.forEach(function(index) {
+                                    var date_format = new Date(index.created_at);
+                                    var a = date_format.getDate() + ' ' + monthShortNames[date_format.getMonth()] + ', ' + date_format.getFullYear()+' '+date_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+                                    optionLoop +=
+                                        '<tr><td class="text-center">' + a + '</td><td class="text-center">' + index.account.name + '</td><td class="text-center"><span class="badge  bg-gradient-success"> ' + index.amount_loaded + '$</span></td><td class="text-center">' 
+                                        + ((index.type == 'refer')?'bonus':index.type)  + '</td><td class="text-center">' + index.created_by.name + '</td></tr>';
+                                });
+                            }
+        
+                        } else {
+                            optionLoop = '<tr><td>No History</td></tr>';
+                        }
+                        $(".user-history-body").html(optionLoop);
+        
+                    },
+                    error: function(data) {
+                        toastr.error('Error', data.responseText);
+                    }
+                });
+            });
+        });  
+        
 });
